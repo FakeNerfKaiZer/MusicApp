@@ -5,7 +5,9 @@
 package musicapp;
 
 public class MusicApp {
+
     public static void main(String[] args) {
+
         // Create and display the GUI
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

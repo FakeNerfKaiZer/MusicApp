@@ -7,14 +7,15 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
+import javax.swing.JOptionPane;
 
 
 public class MusicGUI extends javax.swing.JFrame {
     
     
-    private final Stack<String> likedSongs;
-    private final Stack<String> electroSongs;
-    private final Stack<String> rockSongs;
+    private Stack<String> likedSongs;
+    private Stack<String> electroSongs;
+    private Stack<String> rockSongs;
     
     private enum PlaylistType {LIKED, ELECTRO, ROCK}
     
@@ -27,8 +28,9 @@ public class MusicGUI extends javax.swing.JFrame {
     public Stack<String> getElectroList() {
         return electroSongs;
     }
-    
-        // Define a Queue to store the playlist songs
+   
+        
+    // Define a Queue to store the playlist songs
     private Queue<String> playlistQueue = new LinkedList<>();
 
     // Method to add songs to the playlist queue
@@ -37,9 +39,9 @@ public class MusicGUI extends javax.swing.JFrame {
 }
     
     // Define variables to track the current index of the song being played in each playlist
-    private final int electroIndex = 0;
-    private final int rockIndex = 0;
-    private final int likedIndex = 0;
+    private int electroIndex = 0;
+    private int rockIndex = 0;
+    private int likedIndex = 0;
     
     // Define a boolean variable to track repeat mode
     private boolean isRepeatMode = false;
@@ -54,18 +56,66 @@ public class MusicGUI extends javax.swing.JFrame {
         }
     }
     
-    private void playNextSong() {
-    String currentSong = playlistQueue.peek(); // Peek at the next song in the queue
-    if (currentSong != null) {
-        System.out.println("Now Playing: " + currentSong);
-        // If repeat mode is ON, add the song back to the end of the queue for continuous playback
-        if (isRepeatMode) {
-            playlistQueue.add(currentSong);
+     private void searchLikedSongs(String query) {
+        StringBuilder searchResults = new StringBuilder();
+        for (String song : likedSongs) {
+            if (song.contains(query)) {
+                searchResults.append(song).append("\n");
+            }
         }
-    } else {
-        System.out.println("End of playlist."); // Print a message if the queue is empty
+        // Display search results in the text area
+        songBox.setText(searchResults.toString());
     }
-}
+    private void playNextSong() {
+        switch (currentPlaylistType) {
+            case ELECTRO:
+                if (electroIndex < electroSongs.size()) {
+                    String currentSong = electroSongs.get(electroIndex);
+                    System.out.println("Now Playing: " + currentSong);
+                    electroIndex++; // Move to the next song
+                } else {
+                    if (isRepeatMode && !electroSongs.isEmpty()) {
+                        electroIndex = 0; // Reset the index to loop back to the beginning
+                        playNextSong(); // Play the first song again
+                    } else {
+                        System.out.println("End of Electro playlist.");
+                    }
+                }
+                break;
+            case ROCK:
+                if (rockIndex < rockSongs.size()) {
+                    String currentSong = rockSongs.get(rockIndex);
+                    System.out.println("Now Playing: " + currentSong);
+                    rockIndex++; // Move to the next song
+                } else {
+                    if (isRepeatMode && !rockSongs.isEmpty()) {
+                        rockIndex = 0; // Reset the index to loop back to the beginning
+                        playNextSong(); // Play the first song again
+                    } else {
+                        System.out.println("End of Rock playlist.");
+                    }
+                }
+                break;
+            case LIKED:
+                if (likedIndex < likedSongs.size()) {
+                    String currentSong = likedSongs.get(likedIndex);
+                    System.out.println("Now Playing: " + currentSong);
+                    likedIndex++; // Move to the next song
+                } else {
+                    if (isRepeatMode && !likedSongs.isEmpty()) {
+                        likedIndex = 0; // Reset the index to loop back to the beginning
+                        playNextSong(); // Play the first song again
+                    } else {
+                        System.out.println("End of Liked Songs playlist.");
+                    }
+                }
+                break;
+            default:
+                System.out.println("Unknown playlist type.");
+                break;
+        }
+    }
+    
     // Method to toggle repeat mode
     private void toggleRepeatMode() {
         isRepeatMode = !isRepeatMode; // Toggle the repeat mode flag
@@ -107,7 +157,7 @@ public class MusicGUI extends javax.swing.JFrame {
         }
     }
 
-    public MusicGUI() {
+    public MusicGUI(){
         initComponents();
         likedSongs = new Stack<>();
         electroSongs = new Stack<>();
@@ -146,6 +196,7 @@ public class MusicGUI extends javax.swing.JFrame {
         title = new javax.swing.JTextField();
         playButton = new javax.swing.JButton();
         playNext = new javax.swing.JButton();
+        searchButton = new javax.swing.JButton();
 
         jPanel2.setBackground(new java.awt.Color(153, 255, 153));
 
@@ -173,7 +224,7 @@ public class MusicGUI extends javax.swing.JFrame {
 
         songNameText.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         songNameText.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        songNameText.setText("Please Enter Song Here");
+        songNameText.setText("Add/Search for a Song");
 
         addToElectro.setText("Add to Electro Playlist");
         addToElectro.addActionListener(new java.awt.event.ActionListener() {
@@ -291,14 +342,18 @@ public class MusicGUI extends javax.swing.JFrame {
             }
         });
 
+        searchButton.setText("Search");
+        searchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(82, 82, 82)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -318,8 +373,10 @@ public class MusicGUI extends javax.swing.JFrame {
                                         .addGap(69, 69, 69)
                                         .addComponent(addToLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(57, 57, 57)))
-                                .addGap(176, 176, 176))
-                            .addComponent(songCount, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(18, 18, 18)
+                                .addComponent(searchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(72, 72, 72))
+                            .addComponent(songCount, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(addToRock, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -340,6 +397,7 @@ public class MusicGUI extends javax.swing.JFrame {
                 .addGap(137, 137, 137)
                 .addComponent(songTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 608, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                     .addContainerGap(302, Short.MAX_VALUE)
@@ -353,7 +411,9 @@ public class MusicGUI extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(songNameText, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(songNameText, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(searchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(30, 30, 30)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(addToLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -364,7 +424,7 @@ public class MusicGUI extends javax.swing.JFrame {
                         .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(playNext, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(3, 3, 3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(repeatButton, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(1, 1, 1)
                 .addComponent(songBox, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -457,20 +517,20 @@ public class MusicGUI extends javax.swing.JFrame {
 
     private void showElectroListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showElectroListActionPerformed
         currentPlaylistType = PlaylistType.ELECTRO;
-        songTitle.setText("Electro Playlist");
+        title.setText("Electro Playlist");
         updateSongBox();
     }//GEN-LAST:event_showElectroListActionPerformed
 
     private void showLikedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showLikedActionPerformed
         currentPlaylistType = PlaylistType.LIKED;
-        songTitle.setText("Liked Songs");
+        title.setText("Liked Songs");
         updateSongBox();
     }//GEN-LAST:event_showLikedActionPerformed
 
     private void removeElectroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeElectroActionPerformed
         if (!electroSongs.isEmpty()) {
             String removedSong = electroSongs.pop();
-            songTitle.setText("Electro Playlist");
+            title.setText("Electro Playlist");
             updateSongBox();
             System.out.println("Removed from Electro Playlist: " + removedSong);
         } else {
@@ -501,6 +561,17 @@ public class MusicGUI extends javax.swing.JFrame {
         playNextSong();
     }//GEN-LAST:event_playNextActionPerformed
 
+    private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
+        String query = songNameText.getText().trim();
+        if (!query.isEmpty()) {
+            searchLikedSongs(query);
+            title.setText("Search Results");
+        } else {
+            JOptionPane.showMessageDialog(this, "Please enter a search query.");
+        }
+    }//GEN-LAST:event_searchButtonActionPerformed
+
+    
     private void addToPlaylist(String songName, PlaylistType currentPlaylistType) {
         switch (currentPlaylistType) {
             case ELECTRO:
@@ -586,6 +657,7 @@ public class MusicGUI extends javax.swing.JFrame {
     private javax.swing.JButton removeElectro;
     private javax.swing.JButton removeRock;
     private javax.swing.JButton repeatButton;
+    private javax.swing.JButton searchButton;
     private javax.swing.JButton showElectroList;
     private javax.swing.JButton showLiked;
     private javax.swing.JButton showRockList;
