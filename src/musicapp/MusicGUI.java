@@ -19,13 +19,12 @@ public class MusicGUI extends javax.swing.JFrame {
     private PlaylistType currentPlaylistType;
     
     public Stack<String> getLikedSongs() {
-    return likedSongs;
-    
-}
+        return likedSongs;
+    }
     
     public Stack<String> getElectroList() {
-    return electroSongs;
-}
+        return electroSongs;
+    }
     public MusicGUI() {
         initComponents();
         likedSongs = new Stack<>();
@@ -58,6 +57,7 @@ public class MusicGUI extends javax.swing.JFrame {
         songCount = new javax.swing.JTextField();
         title = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
+        showLiked = new javax.swing.JButton();
 
         jPanel2.setBackground(new java.awt.Color(153, 255, 153));
 
@@ -155,6 +155,14 @@ public class MusicGUI extends javax.swing.JFrame {
             .addGap(0, 75, Short.MAX_VALUE)
         );
 
+        showLiked.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        showLiked.setText("Show Liked Songs");
+        showLiked.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showLikedActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -167,15 +175,6 @@ public class MusicGUI extends javax.swing.JFrame {
                     .addComponent(songBox, javax.swing.GroupLayout.PREFERRED_SIZE, 552, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(46, 46, 46))
             .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(243, 243, 243)
-                        .addComponent(addToLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(168, 168, 168)
-                        .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -193,6 +192,17 @@ public class MusicGUI extends javax.swing.JFrame {
                                 .addGap(75, 75, 75)
                                 .addComponent(addToRock, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(168, 168, 168)
+                        .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(122, 122, 122)
+                        .addComponent(showLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(69, 69, 69)
+                        .addComponent(addToLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -200,9 +210,11 @@ public class MusicGUI extends javax.swing.JFrame {
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(songNameText, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(addToLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(30, 30, 30)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addToLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(showLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(4, 4, 4)
                 .addComponent(songBox, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -240,6 +252,7 @@ public class MusicGUI extends javax.swing.JFrame {
             likedSongs.push(songName);
             System.out.println("Added to Liked Songs: " + songName);
             getLikedSongs();
+            addToPlaylist(songName, currentPlaylistType); // Add to respective playlist
             songNameText.setText(""); // Clear text field
             updateSongBox(); // Update display after adding song
         } else {
@@ -249,24 +262,24 @@ public class MusicGUI extends javax.swing.JFrame {
 
     private void addToElectroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToElectroActionPerformed
         if (!likedSongs.isEmpty()) {
-            String song = likedSongs.pop();
+            String song = likedSongs.peek();
             electroSongs.push(song);
             updateSongBox();
             getElectroList();
             System.out.println("Added to Electro: " + song);
         } else {
-            javax.swing.JOptionPane.showMessageDialog(this, "Liked songs stack is empty.");
+            javax.swing.JOptionPane.showMessageDialog(this, "Liked songs list is empty.");
         }
     }//GEN-LAST:event_addToElectroActionPerformed
 
     private void addToRockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToRockActionPerformed
         if (!likedSongs.isEmpty()) {
-            String song = likedSongs.pop();
+            String song = likedSongs.peek();
             rockSongs.push(song);
             updateSongBox();
             System.out.println("Added to Rock: " + song);
         } else {
-            javax.swing.JOptionPane.showMessageDialog(this, "Liked songs stack is empty.");
+            javax.swing.JOptionPane.showMessageDialog(this, "Liked songs list is empty.");
         }
     }//GEN-LAST:event_addToRockActionPerformed
 
@@ -279,6 +292,22 @@ public class MusicGUI extends javax.swing.JFrame {
         currentPlaylistType = PlaylistType.ELECTRO;
         updateSongBox();
     }//GEN-LAST:event_showElectroListActionPerformed
+
+    private void showLikedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showLikedActionPerformed
+        currentPlaylistType = PlaylistType.LIKED;
+        updateSongBox();
+    }//GEN-LAST:event_showLikedActionPerformed
+
+    private void addToPlaylist(String songName, PlaylistType currentPlaylistType) {
+        switch (currentPlaylistType) {
+            case ELECTRO:
+                electroSongs.push(songName);
+                break;
+            case ROCK:
+                rockSongs.push(songName);
+                break;
+        }
+    }
 
     private void updateSongBox() {
         StringBuilder sb = new StringBuilder();
@@ -352,6 +381,7 @@ public class MusicGUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JButton showElectroList;
+    private javax.swing.JButton showLiked;
     private javax.swing.JButton showRockList;
     private java.awt.TextArea songBox;
     private javax.swing.JTextField songCount;
