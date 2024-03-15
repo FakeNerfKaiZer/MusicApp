@@ -4,6 +4,8 @@
  */
 package musicapp;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
 
 
@@ -25,6 +27,86 @@ public class MusicGUI extends javax.swing.JFrame {
     public Stack<String> getElectroList() {
         return electroSongs;
     }
+    
+        // Define a Queue to store the playlist songs
+    private Queue<String> playlistQueue = new LinkedList<>();
+
+    // Method to add songs to the playlist queue
+    private void addToPlaylistQueue(String songName) {
+        playlistQueue.add(songName);
+}
+    
+    // Define variables to track the current index of the song being played in each playlist
+    private final int electroIndex = 0;
+    private final int rockIndex = 0;
+    private final int likedIndex = 0;
+    
+    // Define a boolean variable to track repeat mode
+    private boolean isRepeatMode = false;
+    
+    // Constructor and other GUI-related methods...
+    
+    // Method to add songs from a stack to the playlist queue
+    private void addToPlaylistQueue(Stack<String> songStack) {
+        while (!songStack.isEmpty()) {
+            String songName = songStack.pop();
+            playlistQueue.add(songName);
+        }
+    }
+    
+    private void playNextSong() {
+    String currentSong = playlistQueue.peek(); // Peek at the next song in the queue
+    if (currentSong != null) {
+        System.out.println("Now Playing: " + currentSong);
+        // If repeat mode is ON, add the song back to the end of the queue for continuous playback
+        if (isRepeatMode) {
+            playlistQueue.add(currentSong);
+        }
+    } else {
+        System.out.println("End of playlist."); // Print a message if the queue is empty
+    }
+}
+    // Method to toggle repeat mode
+    private void toggleRepeatMode() {
+        isRepeatMode = !isRepeatMode; // Toggle the repeat mode flag
+        if (isRepeatMode) {
+            repeatButton.setText("Repeat: ON"); // Update button label to indicate repeat mode is ON
+        } else {
+            repeatButton.setText("Repeat: OFF"); // Update button label to indicate repeat mode is OFF
+        }
+    }
+    
+    // Method to play the playlist
+    private void playPlaylist() {
+        switch (currentPlaylistType) {
+            case ELECTRO:
+                addToPlaylistQueue(electroSongs); // Add songs from Electro stack to queue
+                break;
+            case ROCK:
+                addToPlaylistQueue(rockSongs); // Add songs from Rock stack to queue
+                break;
+            case LIKED:
+                addToPlaylistQueue(likedSongs); // Add songs from Liked stack to queue
+                break;
+            default:
+                return; // Return if an unknown playlist type is encountered
+        }
+        
+        // Now play songs from the playlist queue
+        while (!playlistQueue.isEmpty() || isRepeatMode) {
+            String currentSong = playlistQueue.poll(); // Dequeue the next song from the queue
+            if (currentSong != null) {
+                songTitle.setText("Now Playing: " + currentSong);
+                // If repeat mode is ON, add the song back to the end of the queue for continuous playback
+                if (isRepeatMode) {
+                    playlistQueue.add(currentSong);
+                }
+            } else {
+                break; // Break the loop if the queue is empty and repeat mode is OFF
+            }
+        }
+    }
+
     public MusicGUI() {
         initComponents();
         likedSongs = new Stack<>();
@@ -54,12 +136,16 @@ public class MusicGUI extends javax.swing.JFrame {
         showElectroList = new javax.swing.JButton();
         songBox = new java.awt.TextArea();
         songCount = new javax.swing.JTextField();
-        title = new javax.swing.JTextField();
+        songTitle = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
         showLiked = new javax.swing.JButton();
         removeElectro = new javax.swing.JButton();
         removeRock = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
+        repeatButton = new javax.swing.JButton();
+        title = new javax.swing.JTextField();
+        playButton = new javax.swing.JButton();
+        playNext = new javax.swing.JButton();
 
         jPanel2.setBackground(new java.awt.Color(153, 255, 153));
 
@@ -78,7 +164,6 @@ public class MusicGUI extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(51, 51, 51));
 
-        addToLiked.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         addToLiked.setText("Add to Liked Songs");
         addToLiked.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -126,11 +211,11 @@ public class MusicGUI extends javax.swing.JFrame {
         songCount.setText("Song Count: ");
         songCount.setBorder(null);
 
-        title.setBackground(new java.awt.Color(51, 51, 51));
-        title.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        title.setForeground(new java.awt.Color(255, 255, 255));
-        title.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        title.setBorder(null);
+        songTitle.setBackground(new java.awt.Color(51, 51, 51));
+        songTitle.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
+        songTitle.setForeground(new java.awt.Color(255, 255, 255));
+        songTitle.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        songTitle.setBorder(null);
 
         jPanel4.setBackground(new java.awt.Color(153, 255, 153));
 
@@ -145,7 +230,6 @@ public class MusicGUI extends javax.swing.JFrame {
             .addGap(0, 75, Short.MAX_VALUE)
         );
 
-        showLiked.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         showLiked.setText("Show Liked Songs");
         showLiked.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -180,37 +264,62 @@ public class MusicGUI extends javax.swing.JFrame {
             .addGap(0, 75, Short.MAX_VALUE)
         );
 
+        repeatButton.setText("Repeat");
+        repeatButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                repeatButtonActionPerformed(evt);
+            }
+        });
+
+        title.setBackground(new java.awt.Color(51, 51, 51));
+        title.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        title.setForeground(new java.awt.Color(255, 255, 255));
+        title.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        title.setBorder(null);
+
+        playButton.setText("Play");
+        playButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                playButtonActionPerformed(evt);
+            }
+        });
+
+        playNext.setText("Play Next Song");
+        playNext.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                playNextActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(songCount, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(46, 46, 46))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(songNameText, javax.swing.GroupLayout.PREFERRED_SIZE, 511, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(101, 101, 101)
-                                        .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(55, 55, 55)
-                                        .addComponent(showLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(69, 69, 69)
-                                        .addComponent(addToLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(57, 57, 57)))
-                        .addGap(176, 176, 176))))
+            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(82, 82, 82)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(songBox, javax.swing.GroupLayout.PREFERRED_SIZE, 725, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(repeatButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(playButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(playNext, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(songNameText, javax.swing.GroupLayout.PREFERRED_SIZE, 511, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                        .addGap(55, 55, 55)
+                                        .addComponent(showLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(69, 69, 69)
+                                        .addComponent(addToLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(57, 57, 57)))
+                                .addGap(176, 176, 176))
+                            .addComponent(songCount, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(addToRock, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -223,29 +332,45 @@ public class MusicGUI extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(removeElectro, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(removeRock, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(72, Short.MAX_VALUE))))
-            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(songBox, javax.swing.GroupLayout.PREFERRED_SIZE, 725, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(137, 137, 137)
+                .addComponent(songTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 608, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                    .addContainerGap(302, Short.MAX_VALUE)
+                    .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(270, 270, 270)))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(songNameText, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(30, 30, 30)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(addToLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(showLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(songNameText, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(30, 30, 30)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(addToLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(showLiked, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(69, 69, 69)
+                        .addComponent(songCount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(playNext, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(3, 3, 3)
+                        .addComponent(repeatButton, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(1, 1, 1)
+                .addComponent(songBox, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(songBox, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(13, 13, 13)
-                .addComponent(songCount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(songTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(26, 26, 26)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -261,6 +386,11 @@ public class MusicGUI extends javax.swing.JFrame {
                         .addComponent(removeRock, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGap(278, 278, 278)
+                    .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(655, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -275,7 +405,7 @@ public class MusicGUI extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 61, Short.MAX_VALUE))
+                .addGap(0, 48, Short.MAX_VALUE))
         );
 
         pack();
@@ -327,20 +457,20 @@ public class MusicGUI extends javax.swing.JFrame {
 
     private void showElectroListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showElectroListActionPerformed
         currentPlaylistType = PlaylistType.ELECTRO;
-        title.setText("Electro Playlist");
+        songTitle.setText("Electro Playlist");
         updateSongBox();
     }//GEN-LAST:event_showElectroListActionPerformed
 
     private void showLikedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showLikedActionPerformed
         currentPlaylistType = PlaylistType.LIKED;
-        title.setText("Liked Songs");
+        songTitle.setText("Liked Songs");
         updateSongBox();
     }//GEN-LAST:event_showLikedActionPerformed
 
     private void removeElectroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeElectroActionPerformed
         if (!electroSongs.isEmpty()) {
             String removedSong = electroSongs.pop();
-            title.setText("Electro Playlist");
+            songTitle.setText("Electro Playlist");
             updateSongBox();
             System.out.println("Removed from Electro Playlist: " + removedSong);
         } else {
@@ -358,6 +488,18 @@ public class MusicGUI extends javax.swing.JFrame {
             javax.swing.JOptionPane.showMessageDialog(this, "Rock Playlistt is empty.");
         }        
     }//GEN-LAST:event_removeRockActionPerformed
+
+    private void repeatButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_repeatButtonActionPerformed
+        toggleRepeatMode();
+    }//GEN-LAST:event_repeatButtonActionPerformed
+
+    private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playButtonActionPerformed
+        playPlaylist();
+    }//GEN-LAST:event_playButtonActionPerformed
+
+    private void playNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playNextActionPerformed
+        playNextSong();
+    }//GEN-LAST:event_playNextActionPerformed
 
     private void addToPlaylist(String songName, PlaylistType currentPlaylistType) {
         switch (currentPlaylistType) {
@@ -439,14 +581,18 @@ public class MusicGUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JButton playButton;
+    private javax.swing.JButton playNext;
     private javax.swing.JButton removeElectro;
     private javax.swing.JButton removeRock;
+    private javax.swing.JButton repeatButton;
     private javax.swing.JButton showElectroList;
     private javax.swing.JButton showLiked;
     private javax.swing.JButton showRockList;
     private java.awt.TextArea songBox;
     private javax.swing.JTextField songCount;
     private javax.swing.JTextField songNameText;
+    private javax.swing.JTextField songTitle;
     private java.awt.TextArea textArea1;
     private javax.swing.JTextField title;
     // End of variables declaration//GEN-END:variables
